@@ -10,6 +10,7 @@ STATS_CONTAINER_NAME := stats
 STATS_DB_CONTAINER_NAME := stats-db
 PROXY_CONTAINER_NAME := proxy
 PG_CONTAINER_NAME := postgres
+VERIFIER_CONTAINER_NAME := smart-contract-verifier
 RELEASE_VERSION ?= '6.9.0'
 TAG := $(RELEASE_VERSION)-commit-$(shell git log -1 --pretty=format:"%h")
 STABLE_TAG := $(RELEASE_VERSION)
@@ -29,6 +30,8 @@ start:
 	@docker-compose -f ../docker-compose/services/frontend.yml up -d
 	@echo "==> Starting Nginx proxy"
 	@docker-compose -f ../docker-compose/services/nginx.yml up -d
+	@echo "==> Starting smart contract verifier"
+	@docker-compose -f ../docker-compose/services/smart-contract-verifier.yml up -d
 
 BS_BACKEND_STARTED := $(shell docker ps --no-trunc --filter name=^/${BACKEND_CONTAINER_NAME}$  | grep ${BACKEND_CONTAINER_NAME})
 BS_FRONTEND_STARTED := $(shell docker ps --no-trunc --filter name=^/${FRONTEND_CONTAINER_NAME}$  | grep ${FRONTEND_CONTAINER_NAME})
@@ -36,6 +39,7 @@ BS_STATS_STARTED := $(shell docker ps --no-trunc --filter name=^/${STATS_CONTAIN
 BS_STATS_DB_STARTED := $(shell docker ps --no-trunc --filter name=^/${STATS_DB_CONTAINER_NAME}$  | grep ${STATS_DB_CONTAINER_NAME})
 BS_VISUALIZER_STARTED := $(shell docker ps --no-trunc --filter name=^/${VISUALIZER_CONTAINER_NAME}$  | grep ${VISUALIZER_CONTAINER_NAME})
 BS_SIG_PROVIDER_STARTED := $(shell docker ps --no-trunc --filter name=^/${SIG_PROVIDER_CONTAINER_NAME}$  | grep ${SIG_PROVIDER_CONTAINER_NAME})
+BS_SMART_CONTRACT_VERIFIER_STARTED := $(shell docker ps --no-trunc --filter name=^/${VERIFIER_CONTAINER_NAME}$  | grep ${VERIFIER_CONTAINER_NAME})
 BS_PROXY_STARTED := $(shell docker ps --no-trunc --filter name=^/${PROXY_CONTAINER_NAME}$  | grep ${PROXY_CONTAINER_NAME})
 stop:
 ifdef BS_FRONTEND_STARTED
@@ -94,7 +98,13 @@ ifdef PG_STARTED
 else
 	@echo "==> Postgres container already stopped before."
 endif
-
+ifdef BS_SMART_CONTRACT_VERIFIER_STARTED
+	@echo "==> Stopping verifier container."
+	@docker stop $(VERIFIER_CONTAINER_NAME)
+	@echo "==> Verifier container stopped."
+else
+	@echo "==> Verifier container already stopped before."
+endif
 run: start
 
 docker-login: ## login to DockerHub with credentials found in env

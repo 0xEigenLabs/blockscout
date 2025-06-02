@@ -134,3 +134,20 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 @import "theme/custom_contracts/dark-forest-theme";
 @import "theme/custom_contracts/circles-theme";
 
+.zk-proof-container {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 10px 0;
+  
+  .zk-proof-json {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+  }
+}
+

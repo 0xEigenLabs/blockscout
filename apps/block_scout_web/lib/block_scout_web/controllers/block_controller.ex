@@ -28,16 +28,13 @@ defmodule BlockScoutWeb.BlockController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    with {:ok, block} <- get_block(id),
-         {:ok, block_transaction_count} <- get_block_transaction_count(block) do
+  def show(conn, %{"hash_or_number" => hash_or_number}) do
+    block_transaction_path =
       conn
-      |> put_meta_tags(title: "Block #{block.number}")
-      |> render("show.html",
-        block: block,
-        block_transaction_count: block_transaction_count
-      )
-    end
+      |> block_transaction_path(:index, hash_or_number)
+      |> Controller.full_path()
+
+    redirect(conn, to: block_transaction_path)
   end
 
   def reorg(conn, params) do
